@@ -1,0 +1,597 @@
+<!DOCTYPE HTML>
+<html lang="en" >
+    
+    <head>
+        
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>Replication Lag | Django Sharding</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 2.4.2">
+        
+        
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+        <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+        
+    <link rel="stylesheet" href="../../gitbook/style.css">
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-edit-link/plugin.css">
+        
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-prism/prism.css">
+        
+    
+        
+        <link rel="stylesheet" href="../../gitbook/plugins/gitbook-plugin-highlight/website.css">
+        
+    
+    
+
+        
+    
+    
+    <link rel="next" href="../../docs/advanced/Rebalancing.html" />
+    
+    
+    <link rel="prev" href="../../docs/advanced/index.html" />
+    
+
+        
+    </head>
+    <body>
+        
+        
+    <div class="book" data-level="4.1" data-basepath="../.." data-revision="Wed Oct 21 2015 09:43:02 GMT-0400 (EDT)">
+    
+
+<div class="book-summary">
+    <div class="book-search" role="search">
+        <input type="text" placeholder="Type to search" class="form-control" />
+    </div>
+    <nav role="navigation">
+        <ul class="summary">
+            
+            
+            
+            
+
+            
+
+            
+    
+        <li class="chapter " data-level="0" data-path="index.html">
+            
+                
+                    <a href="../../index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                        Read Me
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1" data-path="docs/components/index.html">
+            
+                
+                    <a href="../../docs/components/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.</b>
+                        
+                        Components
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.1" data-path="docs/components/IDGeneration.html">
+            
+                
+                    <a href="../../docs/components/IDGeneration.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.1.</b>
+                        
+                        ID Generation
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="docs/components/ShardingFunctions.html">
+            
+                
+                    <a href="../../docs/components/ShardingFunctions.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.2.</b>
+                        
+                        Sharding Functions
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="docs/components/ReadStrategies.html">
+            
+                
+                    <a href="../../docs/components/ReadStrategies.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.3.</b>
+                        
+                        Read Strategies
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="docs/components/Router.html">
+            
+                
+                    <a href="../../docs/components/Router.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.4.</b>
+                        
+                        The Router
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="docs/components/OtherComponents.html">
+            
+                
+                    <a href="../../docs/components/OtherComponents.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>1.5.</b>
+                        
+                        Other Components
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="2" data-path="docs/installation/index.html">
+            
+                
+                    <a href="../../docs/installation/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.</b>
+                        
+                        Installation
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="2.1" data-path="docs/installation/HowToShard.html">
+            
+                
+                    <a href="../../docs/installation/HowToShard.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.1.</b>
+                        
+                        Choosing How To Shard
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="2.2" data-path="docs/installation/Settings.html">
+            
+                
+                    <a href="../../docs/installation/Settings.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>2.2.</b>
+                        
+                        Settings
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="3" data-path="docs/usage/index.html">
+            
+                
+                    <a href="../../docs/usage/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.</b>
+                        
+                        Usage
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="3.1" data-path="docs/usage/AnotherDB.html">
+            
+                
+                    <a href="../../docs/usage/AnotherDB.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.1.</b>
+                        
+                        Store Models on Another DB
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.2" data-path="docs/usage/ShardingAModel.html">
+            
+                
+                    <a href="../../docs/usage/ShardingAModel.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.2.</b>
+                        
+                        Sharding A Model
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.3" data-path="docs/usage/Migrations.html">
+            
+                
+                    <a href="../../docs/usage/Migrations.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.3.</b>
+                        
+                        Model Migration
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="3.4" data-path="docs/usage/DataMigrations.html">
+            
+                
+                    <a href="../../docs/usage/DataMigrations.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>3.4.</b>
+                        
+                        Data Migrations
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="4" data-path="docs/advanced/index.html">
+            
+                
+                    <a href="../../docs/advanced/index.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.</b>
+                        
+                        Advanced Topics
+                    </a>
+            
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter active" data-level="4.1" data-path="docs/advanced/ReplicationLag.html">
+            
+                
+                    <a href="../../docs/advanced/ReplicationLag.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.1.</b>
+                        
+                        Replication Lag
+                    </a>
+            
+            
+        </li>
+    
+        <li class="chapter " data-level="4.2" data-path="docs/advanced/Rebalancing.html">
+            
+                
+                    <a href="../../docs/advanced/Rebalancing.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>4.2.</b>
+                        
+                        Shard Rebalancing
+                    </a>
+            
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="5" data-path="CHANGES.html">
+            
+                
+                    <a href="../../CHANGES.html">
+                
+                        <i class="fa fa-check"></i>
+                        
+                            <b>5.</b>
+                        
+                        Change Log
+                    </a>
+            
+            
+        </li>
+    
+
+
+            
+            <li class="divider"></li>
+            <li>
+                <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+                    Published with GitBook
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+</div>
+
+    <div class="book-body">
+        <div class="body-inner">
+            <div class="book-header" role="navigation">
+    <!-- Actions Left -->
+    <a href="#" class="btn pull-left toggle-summary" aria-label="Table of Contents"><i class="fa fa-align-justify"></i></a>
+    <a href="#" class="btn pull-left toggle-search" aria-label="Search"><i class="fa fa-search"></i></a>
+    
+    <div id="font-settings-wrapper" class="dropdown pull-left">
+        <a href="#" class="btn toggle-dropdown" aria-label="Font Settings"><i class="fa fa-font"></i>
+        </a>
+        <div class="dropdown-menu font-settings">
+    <div class="dropdown-caret">
+        <span class="caret-outer"></span>
+        <span class="caret-inner"></span>
+    </div>
+
+    <div class="buttons">
+        <button type="button" id="reduce-font-size" class="button size-2">A</button>
+        <button type="button" id="enlarge-font-size" class="button size-2">A</button>
+    </div>
+
+    <div class="buttons font-family-list">
+        <button type="button" data-font="0" class="button">Serif</button>
+        <button type="button" data-font="1" class="button">Sans</button>
+    </div>
+
+    <div class="buttons color-theme-list">
+        <button type="button" id="color-theme-preview-0" class="button size-3" data-theme="0">White</button>
+        <button type="button" id="color-theme-preview-1" class="button size-3" data-theme="1">Sepia</button>
+        <button type="button" id="color-theme-preview-2" class="button size-3" data-theme="2">Night</button>
+    </div>
+</div>
+
+    </div>
+
+    <!-- Actions Right -->
+    
+    <div class="dropdown pull-right">
+        <a href="#" class="btn toggle-dropdown" aria-label="Share"><i class="fa fa-share-alt"></i>
+        </a>
+        <div class="dropdown-menu font-settings dropdown-left">
+            <div class="dropdown-caret">
+                <span class="caret-outer"></span>
+                <span class="caret-inner"></span>
+            </div>
+            <div class="buttons">
+                <button type="button" data-sharing="twitter" class="button">
+                    Share on Twitter
+                </button>
+                <button type="button" data-sharing="google-plus" class="button">
+                    Share on Google
+                </button>
+                <button type="button" data-sharing="facebook" class="button">
+                    Share on Facebook
+                </button>
+                <button type="button" data-sharing="weibo" class="button">
+                    Share on Weibo
+                </button>
+                <button type="button" data-sharing="instapaper" class="button">
+                    Share on Instapaper
+                </button>
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <a href="#" target="_blank" class="btn pull-right google-plus-sharing-link sharing-link" data-sharing="google-plus" aria-label="Google"><i class="fa fa-google-plus"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right facebook-sharing-link sharing-link" data-sharing="facebook" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
+    
+    
+    <a href="#" target="_blank" class="btn pull-right twitter-sharing-link sharing-link" data-sharing="twitter" aria-label="Twitter"><i class="fa fa-twitter"></i></a>
+    
+    
+    
+
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../../" >Django Sharding</a>
+    </h1>
+</div>
+
+            <div class="page-wrapper" tabindex="-1" role="main">
+                <div class="page-inner">
+                
+                
+                    <section class="normal" id="section-">
+                    
+                        <a id="edit-link" href="https://github.com/JBKahn/django-sharding/tree/master/docs/advanced/ReplicationLag.md" class="btn fa fa-edit pull-left">&nbsp;&nbsp;Edit This Page</a><h1 id="replication-lag-time">Replication Lag Time</h1>
+<h4 id="why-this-is-difficult">Why This Is Difficult</h4>
+<p>As mentioned earlier in the documentation, when using replication drives you may get stale data if you read from one of these drives before the data has propagated from the primary drive. This is a difficult problem to solve due to the way routing works in Django.</p>
+<p>For example, the following call:</p>
+<pre><code class="lang-python">CoolGuyModel.objects.using(<span class="hljs-string">&apos;some_database&apos;</span>).create(user_id=<span class="hljs-number">1</span>, some_cool_guy_string=<span class="hljs-string">&quot;123&quot;</span>)
+</code></pre>
+<p>Will result in the router receiving the information that we want to create an instance of <code>CoolGuyModel</code>. The router is not given the value of any field or details about the instance. As such, it&apos;s really hard to mark something as &quot;dirty&quot; such that it can only be read from the primary database. </p>
+<p>The <a href="https://github.com/jbalogh/django-multidb-router" target="_blank">Django Multi DB Router</a>, which is made to be used for replication database, uses a cookie-based strategy. It adds a cookie every time a user calls a function which modifies data and that entire require reads only from primary database. There are two flaws with this method that prevent it from being included here:</p>
+<p>The first is that this does not handle the case of stale data being read in from non-request and non-response sources. For example: Celery Tasks, Management Commands and anything else that writes then reads data (or reads while a user is modifying it) could real stale data.</p>
+<p>The second is that a second user requesting the same data will get stale data. This does not invalidate the data but instead works on invalidating just the user who wrote the changes.</p>
+<p>As of yet, I have yet to come up with a better way of handling replication lag time.</p>
+<h4 id="a-possible-implementation">A Possible Implementation</h4>
+<p>To integrate <a href="https://github.com/jbalogh/django-multidb-router" target="_blank">Django Multi DB Router</a> version 0.6 (latest at the time of writing this) with this library, you can do the following:</p>
+<ol>
+<li>pip install the <code>django-multidb-router</code> package and add it to your requirements:</li>
+</ol>
+<p><code>pip install django-multidb-router</code></p>
+<ol>
+<li>Subclass the router I&apos;ve provided:</li>
+</ol>
+<pre><code class="lang-python"><span class="hljs-keyword">from</span> django.conf <span class="hljs-keyword">import</span> settings
+
+<span class="hljs-keyword">from</span> multidb.pinning <span class="hljs-keyword">import</span> this_thread_is_pinned
+
+<span class="hljs-keyword">from</span> django_sharding_library.router <span class="hljs-keyword">import</span> ShardedRouter
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ShardedRouterWithReplicationLagTimeSupport</span><span class="hljs-params">(ShardedRouter)</span>:</span>
+    <span class="hljs-string">&quot;&quot;&quot;
+    A router that is shard-aware and supports replication lag time.
+    &quot;&quot;&quot;</span>
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_replica_primary_mapping</span><span class="hljs-params">(self, databases)</span>:</span>
+        <span class="hljs-string">&quot;&quot;&quot;
+        Creates a dictionary that maps a replica drive name to its
+        primary database.
+        &quot;&quot;&quot;</span>
+        mapping = getattr(self, <span class="hljs-string">&apos;primary_replica_mapping&apos;</span>, {})
+        <span class="hljs-keyword">if</span> mapping:
+            <span class="hljs-keyword">return</span> mapping
+        <span class="hljs-keyword">for</span> name, config <span class="hljs-keyword">in</span> databases.items():
+            <span class="hljs-comment"># map primary drives to themselves to make the code simpler</span>
+            primary = config.get(<span class="hljs-string">&apos;PRIMARY&apos;</span>, name)
+            mapping[name].append(primary)
+        setattr(self, <span class="hljs-string">&apos;primary_replica_mapping&apos;</span>, mapping)
+        <span class="hljs-keyword">return</span> mapping
+
+    <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">db_for_read</span><span class="hljs-params">(self, model, **hints)</span>:</span>
+        database = super(ShardedRouterWithReplicationLagTimeSupport, self).db_for_read(
+            model, **hints
+        )
+        <span class="hljs-keyword">if</span> database <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">None</span>:
+            primary_replica_mapping = self.get_replica_primary_mapping(
+                settings.DATABASES
+            )
+            primary_db = primary_replica_mapping[database]
+            <span class="hljs-keyword">return</span> primary_db <span class="hljs-keyword">if</span> this_thread_is_pinned() <span class="hljs-keyword">else</span> database
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">None</span>
+</code></pre>
+<ol>
+<li>Set that router as your database router in your settings file:</li>
+</ol>
+<pre><code class="lang-python">DATABASE_ROUTERS=[<span class="hljs-string">&apos;&lt;path_to_router&gt;.ShardedRouterWithReplicationLagTimeSupport&apos;</span>],
+`
+</code></pre>
+<ol>
+<li>Add the middleware</li>
+</ol>
+<pre><code class="lang-python">MIDDLEWARE_CLASSES = (
+    <span class="hljs-string">&apos;multidb.middleware.PinningRouterMiddleware&apos;</span>,
+    <span class="hljs-comment"># ...more middleware here...</span>
+)
+</code></pre>
+<ol>
+<li>Adjust the replication lag time and the cookie name:</li>
+</ol>
+<pre><code class="lang-python">MULTIDB_PINNING_SECONDS = <span class="hljs-number">15</span>
+MULTIDB_PINNING_COOKIE = <span class="hljs-string">&apos;multidb_pin_writes&apos;</span>
+</code></pre>
+<p>Note: This has not been extensively tested by the author.</p>
+
+                    
+                    </section>
+                
+                
+                </div>
+            </div>
+        </div>
+
+        
+        <a href="../../docs/advanced/index.html" class="navigation navigation-prev " aria-label="Previous page: Advanced Topics"><i class="fa fa-angle-left"></i></a>
+        
+        
+        <a href="../../docs/advanced/Rebalancing.html" class="navigation navigation-next " aria-label="Next page: Shard Rebalancing"><i class="fa fa-angle-right"></i></a>
+        
+    </div>
+</div>
+
+        
+<script src="../../gitbook/app.js"></script>
+
+    
+    <script src="../../gitbook/plugins/gitbook-plugin-edit-link/plugin.js"></script>
+    
+
+<script>
+require(["gitbook"], function(gitbook) {
+    var config = {"fontSettings":{"theme":null,"family":"sans","size":2},"edit-link":{"base":"https://github.com/JBKahn/django-sharding/tree/master","label":"Edit This Page"}};
+    gitbook.start(config);
+});
+</script>
+
+        
+    </body>
+    
+</html>

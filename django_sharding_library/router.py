@@ -100,7 +100,7 @@ class ShardedRouter(object):
         if not is_pk_postgres_generated_id_field:
 
             def parent_field_check_func(field):
-                return field.primary_key and issubclass(field, BasePostgresShardGeneratedIDField)
+                return field.primary_key and isinstance(field, BasePostgresShardGeneratedIDField)
 
             is_pk_postgres_generated_id_field = any(map(parent_field_check_func, model._meta.fields))
 

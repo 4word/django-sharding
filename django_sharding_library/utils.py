@@ -89,6 +89,7 @@ def get_possible_databases_for_model(model):
 
 
 def get_database_for_model_instance(instance):
+    print("In get shard for model instance")
     if instance._state.db:
         return instance._state.db
 
@@ -99,6 +100,7 @@ def get_database_for_model_instance(instance):
     elif len(possible_databases) == 0:
         pass
     else:
+        print("Working on getting the shard, I think this is where I break")
         model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
 
         if model_has_sharded_id_field:

@@ -89,8 +89,10 @@ class ShardedRouter(object):
         #
         #####
         if instance:
+            print("using instance")
             shard = get_database_for_model_instance(instance=instance)
         if shard is None and model_has_sharded_id_field and shard_field_id:
+            print("using shard by field")
             shard = self.get_shard_for_id_field(model, shard_field_id)
 
         is_pk_postgres_generated_id_field = issubclass(type(getattr(model._meta, 'pk')), BasePostgresShardGeneratedIDField)
@@ -107,8 +109,10 @@ class ShardedRouter(object):
         lookup_pk = hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
 
         if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:
-            return self.get_shard_for_postgres_pk_field(model, lookup_pk)
+            print("using PK")
+            shard = self.get_shard_for_postgres_pk_field(model, lookup_pk)
 
+        print("got nothing")
         return shard
 
     def db_for_read(self, model, **hints):

@@ -110,9 +110,13 @@ class ShardedRouter(object):
 
         if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:
             print("using PK")
+            print("PK: %s" % lookup_pk)
+
             shard = self.get_shard_for_postgres_pk_field(model, lookup_pk)
 
-        print("got nothing")
+        if shard is None:
+            print("got nothing")
+        print("shard: %s" % shard)
         return shard
 
     def db_for_read(self, model, **hints):

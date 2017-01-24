@@ -62,7 +62,8 @@ def model_config(shard_group=None, database=None, sharded_by_field=None):
                 raise ShardedModelInitializationException('All sharded models require a ShardedIDFieldMixin or a '
                                                           'PostgresShardGeneratedIDField.')
 
-            if not list(filter(lambda field: field == cls._meta.pk, sharded_fields + postgres_shard_id_fields)):
+            if not list(filter(lambda field: field == cls._meta.pk or field.primary_key,
+                               sharded_fields + postgres_shard_id_fields)):
                 raise ShardedModelInitializationException('All sharded models require a ShardedAutoIDField or '
                                                           'PostgresShardGeneratedIDField to be the primary key. Set '
                                                           'primary_key=True on the field.')

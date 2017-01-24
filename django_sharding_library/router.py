@@ -17,8 +17,20 @@ class ShardedRouter(object):
     read or write from.
     """
 
+    # Helper function to make sure we only try to route on a sharded model
+    def get_shard_group_if_sharded_or_none(self, model):
+        if getattr(model, 'django_sharding__is_sharded', False):
+            return getattr(model, 'django_sharding__shard_group', None)
+        return None
+
     def get_shard_for_instance(self, instance):
-        return instance._state.db or instance.get_shard()
+        try:
+            return instance._state.db or instance.get_shard()
+        except Exception:
+            # This is overly broad on purpose: we dont know what a user might try to do to get a shard from an ID (our
+            # example is a .get(), but someone could do anything) and if it excepts, we want to fall back to the next
+            # attempt at grabbing a shard based on other potential filters
+            return None
 
     def get_shard_for_id_field(self, model, sharded_by_field_id):
         try:
@@ -45,9 +57,25 @@ class ShardedRouter(object):
         return apps.get_app_config(app_config_app_label).get_routing_strategy(shard_group)
 
     def _get_shard(self, model, **hints):
-        shard = None
 
+        # We shouldn't attempt to route an unsharded model query, return None for default and the user can overrride
+        # with using() if they want to
+        if not self.get_shard_group_if_sharded_or_none(model):
+            return None
+
+        shard = None
+        instance = hints.get('instance')
         model_has_sharded_id_field = getattr(model, 'django_sharding__sharded_by_field', None) is not None
+        shard_field_id = None
+
+        if model_has_sharded_id_field:
+            shard_field_id = hints.get('exact_lookups', {}).get(
+                getattr(model, 'django_sharding__sharded_by_field'), None
+            )
+
+            # If the hints arent populated, fall back to getting it from the instance if we have one
+            if not shard_field_id and instance:
+                shard_field_id = getattr(instance, getattr(model, 'django_sharding__sharded_by_field'), None)
 
         #####
         #
@@ -60,16 +88,22 @@ class ShardedRouter(object):
         # these all fail.
         #
         #####
-        if hints.get("instance", None):
-            shard = get_database_for_model_instance(instance=hints["instance"])
-        if shard is None and model_has_sharded_id_field:
-            sharded_by_field_id = hints.get('exact_lookups', {}).get(
-                getattr(model, 'django_sharding__sharded_by_field'), None
-            )
-            if sharded_by_field_id:
-                shard = self.get_shard_for_id_field(model, sharded_by_field_id)
+        if instance:
+            shard = get_database_for_model_instance(instance=instance)
+        if shard is None and model_has_sharded_id_field and shard_field_id:
+            shard = self.get_shard_for_id_field(model, shard_field_id)
 
         is_pk_postgres_generated_id_field = issubclass(type(getattr(model._meta, 'pk')), BasePostgresShardGeneratedIDField)
+
+        # Its possible for an inherited, non-abstract model to have postgres generated ID from the parent table, so
+        # check for that
+        if not is_pk_postgres_generated_id_field:
+
+            def parent_field_check_func(field):
+                return field.primary_key and issubclass(field, BasePostgresShardGeneratedIDField)
+
+            is_pk_postgres_generated_id_field = any(map(parent_field_check_func, model._meta.fields))
+
         lookup_pk = hints.get('exact_lookups', {}).get('pk') or hints.get('exact_lookups', {}).get('id')
 
         if shard is None and is_pk_postgres_generated_id_field and lookup_pk is not None:
